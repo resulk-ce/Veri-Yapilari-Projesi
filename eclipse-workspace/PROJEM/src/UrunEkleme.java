@@ -43,7 +43,7 @@ public void kataloguYazdir(){
 	System.out.println("\n--- ÜRÜN KATALOĞU (A-Z Sıralı) ---");
 	kataloguYazdirOzyinelemeli(kok);
 }
-//agactaki ürünleri soldan sağa dogru alfabetik olarak yazmasını sağlar
+//agactaki ürünleri soldan sağa dogru alfabetik olarak yazar.
 private void kataloguYazdirOzyinelemeli(UrunDugum mevcutKok){
 if(mevcutKok != null){
 	kataloguYazdirOzyinelemeli(mevcutKok.sol);
