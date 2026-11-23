@@ -1,70 +1,38 @@
 package varliklar;
 
-
-// sipariş saatini ve tarihini sistemden otomatik çekebilmek için ekledim (hazır zaman kütüphanesi)
-import java.time.LocalDateTime;
-// aldığım tarihi gün ay yıl saat formatına çevirmek için ekledim (tarih biçimlendirici)
-import java.time.format.DateTimeFormatter;
-// sipariş kalemlerini tutacak dinamik liste yapısı için ekledim (boyutu otomatik büyüyen dizi)
-import java.util.ArrayList;
-// liste arayüzünü kullanabilmek için ekledim (arraylist yapısının üst şablonu)
-import java.util.List;
-
-
-
-// müşterinin verdiği siparişin genel bilgilerini ve içindeki ürünleri tutmak için açtım
+// müşterinin oluşturduğu siparişin bilgilerini tutmak için bu sınıfı açtım
 public class Siparis {
-    // kapsülleme için tüm alanları private tanımladım
+    // kapsülleme kuralına uymak için değişkenleri private yaptım
     private int siparisId;
-    private String kullaniciAdi;
-    private List<SiparisKalemi> kalemler;
+    private String musteriAdi;
+    private String urunOzeti;
     private double toplamTutar;
-    private String tarih;
     private String durum;
 
-    // yeni sipariş oluşturulurken o anki tarihi otomatik alıp durumu hazırlanıyor yaptım
-    public Siparis(int siparisId, String kullaniciAdi) {
+    // yeni sipariş oluştururken durumu otomatik bekliyor yapan kurucu metot
+    public Siparis(int siparisId, String musteriAdi, String urunOzeti, double toplamTutar) {
         this.siparisId = siparisId;
-        this.kullaniciAdi = guvenliMetin(kullaniciAdi);
-        this.kalemler = new ArrayList<>();
-        this.toplamTutar = 0.0;
-        this.tarih = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-        this.durum = "HAZIRLANIYOR";
+        this.musteriAdi = guvenliMetin(musteriAdi);
+        this.urunOzeti = guvenliMetin(urunOzeti);
+        setToplamTutar(toplamTutar);
+        this.durum = "Bekliyor";
     }
 
-    // dosyadan eski siparişleri geri okurken tüm bilgileriyle nesne oluşturmak için ikinci kurucu
-    public Siparis(int siparisId, String kullaniciAdi, List<SiparisKalemi> kalemler, String tarih, String durum) {
+    // dosyadan eski siparişleri geri yüklerken kayıtlı durumuyla birlikte nesne olusturan ikinci kurucu
+    public Siparis(int siparisId, String musteriAdi, String urunOzeti, double toplamTutar, String durum) {
         this.siparisId = siparisId;
-        this.kullaniciAdi = guvenliMetin(kullaniciAdi);
-        this.kalemler = (kalemler != null) ? new ArrayList<>(kalemler) : new ArrayList<>();
-        this.tarih = guvenliMetin(tarih);
-        this.durum = guvenliMetin(durum).isEmpty() ? "HAZIRLANIYOR" : guvenliMetin(durum);
-        toplamiGuncelle();
+        this.musteriAdi = guvenliMetin(musteriAdi);
+        this.urunOzeti = guvenliMetin(urunOzeti);
+        setToplamTutar(toplamTutar);
+        setDurum(durum);
     }
 
-    // dosyaya yazarken noktalı virgül yapısını bozmasın diye temizlik yapar
+    // dosyaya yazarken noktalı virgül yapısını bozmasın diye metni temizledim
     private String guvenliMetin(String metin) {
         if (metin == null) {
             return "";
         }
         return metin.replace(";", "").trim();
-    }
-
-    // siparişe yeni bir ürün satırı ekleyip toplam tutarı otomatik günceller
-    public void kalemEkle(SiparisKalemi kalem) {
-        if (kalem != null) {
-            this.kalemler.add(kalem);
-            toplamiGuncelle();
-        }
-    }
-
-    // listedeki tüm ürünlerin ara toplamını gezip genel toplamı hesaplar
-    public void toplamiGuncelle() {
-        double toplam = 0.0;
-        for (SiparisKalemi kalem : kalemler) {
-            toplam += kalem.araToplamHesapla();
-        }
-        this.toplamTutar = toplam;
     }
 
     // sipariş numarasını döndürür
@@ -77,25 +45,24 @@ public class Siparis {
         this.siparisId = siparisId;
     }
 
-    // siparişi veren kullanıcının adını döndürür
-    public String getKullaniciAdi() {
-        return kullaniciAdi;
+    // siparişi veren müşterinin adını döndürür
+    public String getMusteriAdi() {
+        return musteriAdi;
     }
 
-    // kullanıcı adını temizleyip günceller
-    public void setKullaniciAdi(String kullaniciAdi) {
-        this.kullaniciAdi = guvenliMetin(kullaniciAdi);
+    // müşteri adını temizleyip atar
+    public void setMusteriAdi(String musteriAdi) {
+        this.musteriAdi = guvenliMetin(musteriAdi);
     }
 
-    // siparişteki tüm ürün kalemlerini liste olarak döndürür
-    public List<SiparisKalemi> getKalemler() {
-        return kalemler;
+    // siparişteki ürünlerin özet metnini döndürür
+    public String getUrunOzeti() {
+        return urunOzeti;
     }
 
-    // ürün kalemi listesini dışarıdan set edip toplamı yeniden hesaplar
-    public void setKalemler(List<SiparisKalemi> kalemler) {
-        this.kalemler = (kalemler != null) ? kalemler : new ArrayList<>();
-        toplamiGuncelle();
+    // ürün özetini temizleyip atar
+    public void setUrunOzeti(String urunOzeti) {
+        this.urunOzeti = guvenliMetin(urunOzeti);
     }
 
     // siparişin toplam tutarını döndürür
@@ -103,14 +70,9 @@ public class Siparis {
         return toplamTutar;
     }
 
-    // sipariş tarihini döndürür
-    public String getTarih() {
-        return tarih;
-    }
-
-    // sipariş tarihini günceller
-    public void setTarih(String tarih) {
-        this.tarih = guvenliMetin(tarih);
+    // tutar negatif girilirse hata olmasın diye en az sıfır yaptım
+    public void setToplamTutar(double toplamTutar) {
+        this.toplamTutar = Math.max(0.0, toplamTutar);
     }
 
     // siparişin son durumunu döndürür
@@ -118,26 +80,20 @@ public class Siparis {
         return durum;
     }
 
-    // sipariş durumunu günceller
+    // durum boş gelirse varsayılan olarak bekliyor atadım
     public void setDurum(String durum) {
-        this.durum = guvenliMetin(durum);
+        String temizDurum = guvenliMetin(durum);
+        this.durum = temizDurum.isEmpty() ? "Bekliyor" : temizDurum;
     }
 
-    // tüm siparişi ve içindeki kalemleri tek satır halinde dosyaya yazılacak formata çevirir
+    // siparisler txt dosyasına yazılırken ortak formata uygun tek satır üretir
     public String toDosyaFormati() {
-        StringBuilder kalemMetni = new StringBuilder();
-        for (int i = 0; i < kalemler.size(); i++) {
-            kalemMetni.append(kalemler.get(i).toDosyaFormati());
-            if (i < kalemler.size() - 1) {
-                kalemMetni.append("|");
-            }
-        }
-        return siparisId + ";" + kullaniciAdi + ";" + toplamTutar + ";" + tarih + ";" + durum + ";" + kalemMetni;
+        return siparisId + ";" + musteriAdi + ";" + urunOzeti + ";" + toplamTutar + ";" + durum;
     }
 
-    // konsolda veya listede sipariş özetini okunaklı gösterir
+    // konsolda sipariş özetini okunaklı gösterir
     @Override
     public String toString() {
-        return "Sipariş #" + siparisId + " | Müşteri: " + kullaniciAdi + " | Tutar: " + toplamTutar + " TL | Durum: " + durum;
+        return "Sipariş #" + siparisId + " | Müşteri: " + musteriAdi + " | Ürünler: " + urunOzeti + " | Tutar: " + toplamTutar + " TL | Durum: " + durum;
     }
 }
